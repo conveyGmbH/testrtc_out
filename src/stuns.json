@@ -1,0 +1,24 @@
+{
+    "stunServers": [
+        {
+            "url": "stun:coturn.convey.de"
+        }
+    ],
+    "turnServers": [
+        {
+            "username": "1625996409:w_jum4tj2vludd",
+            "password": "c6W2FqVd9z6uHXArnT1MKyRAqb0=",
+            "url": "turns:coturn.convey.de:443?transport=tcp",
+            "ttl": 86400
+        },
+        {
+            "username": "1625996409:w_jum4tj2vludd",
+            "password": "c6W2FqVd9z6uHXArnT1MKyRAqb0=",
+            "url": "turn:coturn.convey.de:443?transport=tcp",
+            "ttl": 86400
+        }
+    ],
+    "remoteIceCandidates": [
+        
+    ]
+}
