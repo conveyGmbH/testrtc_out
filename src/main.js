@@ -24759,6 +24759,7 @@ Call.isIpv6 = function(candidate) {
 
 // Parse a 'candidate:' line into a JSON object.
 Call.parseCandidate = function(text) {
+  report.traceEventInstant('ice-candidate', config);
   var candidateStr = 'candidate:';
   var pos = text.indexOf(candidateStr) + candidateStr.length;
   var fields = text.substr(pos).split(' ');
