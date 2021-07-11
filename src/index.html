@@ -3003,14 +3003,22 @@ Custom property | Description | Default
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .header .settings {
+      flex: 3;
+    }
+    .header .select {
+        font-weight: 300;
+        font-size: 0.85em;
+    }
 
     #collapse {
       background-color: #f4f4f4;
     }
   </style>
   <template>
-    <div class="header" on-tap="toggle">
-      <span class="title">{{name}}</span>
+    <div class="header">
+      <span class="title" on-tap="toggle">{{name}}</span>
+      <div class="settings"></div>
       <iron-icon icon="[[_iconForState(state)]]"></iron-icon>
     </div>
     <iron-collapse id="collapse" opened="{{opened}}"></iron-collapse>
@@ -4136,25 +4144,24 @@ Custom property | Description | Default
     }
   </style>
   <template>
-    <gum-dialog heading="Welcome to WebRTC Troubleshooter" pending="{{pending}}"></gum-dialog>
+    <gum-dialog heading="Welcome to WebRTC Test" pending="{{pending}}"></gum-dialog>
 
     <!-- Title toolbar -->
     <paper-toolbar class="titlebar">
-      <span class="title">WebRTC Troubleshooter</span>
+      <span class="title">WebRTC Test</span>
       <paper-icon-button icon="menu" on-tap="openSettingsDialog"></paper-icon-button>
       <paper-icon-button icon="bug-report" on-tap="openBugReport"></paper-icon-button>
       <paper-button id="startButton" on-tap="run" raised="" disabled="">Start</paper-button>
     </paper-toolbar>
 
+    <div style="display:none">
+        <select id="audioSource"></select>
+        <select id="videoSource"></select>
+    </div>
+
     <!-- Settings dialog -->
     <paper-dialog id="settings">
       <h2>Settings</h2>
-
-      <div class="section">
-        <h3>Media</h3>
-        <div class="select"><label>Audio source: <select id="audioSource"></select></label></div>
-        <div class="select"><label>Video source: <select id="videoSource"></select></label></div>
-      </div>
 
       <div class="section">
         <h3>TURN</h3>

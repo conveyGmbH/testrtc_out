@@ -21875,6 +21875,21 @@ Polymer({
         if (state === 'running') { return 'more-horiz'; }
         return '';
       },
+      attached: function () {
+          var selectElement = null;
+          if (this.name === testSuiteName.CAMERA) {
+              selectElement = document.getElementById("videoSource");
+          } else if (this.name === testSuiteName.MICROPHONE) {
+              selectElement = document.getElementById("audioSource");
+          }
+          if (selectElement) {
+              selectElement.className = "select testrtc-suite";
+              var settingsElement = Polymer.dom(this.root).querySelector(".header .settings");
+              if (settingsElement && !settingsElement.firstElementChild) {
+                  settingsElement.appendChild(selectElement);
+              }
+          }
+      },
       toggle: function() {
         this.$.collapse.toggle();
       },
@@ -21888,8 +21903,7 @@ Polymer({
       run: function(doneCallback) {
         this.opened = true;
         this.state = 'running';
-        runAllSequentially(this.tests, this.allTestsFinished.bind(this,
-                                                                 doneCallback));
+        runAllSequentially(this.tests, this.allTestsFinished.bind(this, doneCallback));
       },
       allTestsFinished: function(doneCallback) {
         var errors = 0;
@@ -25463,11 +25477,11 @@ function TestCaseNames() {
     CHECKRESOLUTION720: 'Check resolution 1280x720',
     CHECKSUPPORTEDRESOLUTIONS: 'Check supported camera resolutions',
     DATATHROUGHPUT: 'Check data throughput',
-    IPV6ENABLED: 'Check Ipv6 enabled',
     NETWORKLATENCY: 'Check network latency',
     NETWORKLATENCYRELAY: 'Check network latency - Relay',
-    UDPENABLED: 'Check Udp enabled',
-    TCPENABLED: 'Check Tcp enabled',
+    UDPENABLED: 'Check Udp Relay enabled',
+    TCPENABLED: 'Check Tcp Relay enabled',
+    IPV6ENABLED: 'Check Ipv6 enabled',
     VIDEOBANDWIDTH: 'Check video bandwidth',
     RELAYCONNECTIVITY: 'Check relay connectivity',
     REFLEXIVECONNECTIVITY: 'Check reflexive connectivity',
@@ -26226,11 +26240,11 @@ addTest(
 // Set up a datachannel between two peers through a public IP address
 // and verify data can be transmitted and received
 // (packets should stay on the link if behind a router doing NAT)
-addTest(testSuiteName.CONNECTIVITY, testCaseName.REFLEXIVECONNECTIVITY,
-    function(test) {
-      var runConnectivityTest = new RunConnectivityTest(test, Call.isReflexive);
-      runConnectivityTest.run();
-    });
+//addTest(testSuiteName.CONNECTIVITY, testCaseName.REFLEXIVECONNECTIVITY,
+//    function(test) {
+//      var runConnectivityTest = new RunConnectivityTest(test, Call.isReflexive);
+//      runConnectivityTest.run();
+//    });
 
 // Set up a datachannel between two peers through a local IP address
 // and verify data can be transmitted and received
@@ -26307,6 +26321,7 @@ RunConnectivityTest.prototype = {
         return candidateTypeMethod(this.parsedCandidates[candidate]);
       }
     }
+    return null;
   },
 
   hangup: function(errorMessage) {
