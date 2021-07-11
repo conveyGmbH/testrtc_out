@@ -3002,17 +3002,26 @@ Custom property | Description | Default
       font-weight: 300;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding: 4px;
+    }
+    span.title.style-scope.testrtc-suite:hover {
+      background-color: rgba(0,0,0,0.1);
     }
     .header .settings {
       flex: 4;
     }
     .header .select {
-        font-weight: 300;
-        font-size: 0.75em;
+      font-weight: 300;
+      font-size: 0.75em;
+      border-color: transparent;
+      background-color: transparent;
+      padding: 4px;
     }
-
+    .header.testrtc-suite .select.testrtc-suite:hover {
+        background-color: rgba(0,0,0,0.1);
+    }
     #collapse {
-      background-color: #f4f4f4;
+        background-color: #f4f4f4;
     }
   </style>
   <template>
@@ -3062,6 +3071,7 @@ Custom property | Description | Default
     .header .title {
       flex: 1;
       font-weight: 300;
+      font-size: 0.75em;
       overflow: hidden;
       text-overflow: ellipsis;
     }

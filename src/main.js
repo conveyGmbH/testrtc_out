@@ -25471,15 +25471,15 @@ function enumerateStats(stats, localTrackIds, remoteTrackIds) {
 // Enumerate test case names.
 function TestCaseNames() {
   this.testCases = {
-    AUDIOCAPTURE: 'Check capture, please speak into the microphone',
-    CHECKRESOLUTION240: 'Check resolution 320x240',
-    CHECKRESOLUTION480: 'Check resolution 640x480',
-    CHECKRESOLUTION720: 'Check resolution 1280x720',
+    AUDIOCAPTURE: 'Check audio capture, please speak into the microphone',
+    CHECKRESOLUTION240: 'Check video capture, resolution 320x240',
+    CHECKRESOLUTION480: 'Check video capture, resolution 640x480',
+    CHECKRESOLUTION720: 'Check video capture, resolution 1280x720',
     CHECKSUPPORTEDRESOLUTIONS: 'Check supported camera resolutions',
     DATATHROUGHPUT: 'Check data throughput',
     NETWORKLATENCY: 'Check network latency',
     NETWORKLATENCYRELAY: 'Check network latency - Relay',
-    UDPENABLED: 'Check Udp Relay enabled',
+    UDPENABLED: 'Check Udp enabled',
     TCPENABLED: 'Check Tcp Relay enabled',
     IPV6ENABLED: 'Check Ipv6 enabled',
     VIDEOBANDWIDTH: 'Check video bandwidth',
@@ -26080,7 +26080,8 @@ CamResolutionsTest.prototype = {
 // Test whether it can connect via UDP to a TURN server
 // Get a TURN config, and try to get a relay candidate using UDP.
 addTest(testSuiteName.NETWORK, testCaseName.UDPENABLED, function(test) {
-  var networkTest = new NetworkTest(test, 'udp', null, Call.isRelay);
+  var params = {optional: [{udpRelay: true}]};
+  var networkTest = new NetworkTest(test, 'udp', params, Call.isRelay);
   networkTest.run();
 });
 
@@ -26159,6 +26160,9 @@ NetworkTest.prototype = {
       if (params !== null && params.optional[0].googIPv6) {
         this.test.reportWarning('Failed to create peer connection, IPv6 ' +
             'might not be setup/supported on the network.');
+      } else if (params !== null && params.optional[0].udpRelay) {
+        this.test.reportWarning('Failed to create peer connection, udp relay ' +
+          'might not be setup/supported on the network.');
       } else {
         this.test.reportError('Failed to create peer connection: ' + error);
       }
@@ -26189,6 +26193,9 @@ NetworkTest.prototype = {
         if (params !== null && params.optional[0].googIPv6) {
           this.test.reportWarning('Failed to gather IPv6 candidates, it ' +
               'might not be setup/supported on the network.');
+        } else if (params !== null && params.optional[0].udpRelay) {
+          this.test.reportWarning('Failed to gather udp relay candidates, it ' +
+            'might not be setup/supported on the network.');
         } else {
           this.test.reportError('Failed to gather specified candidates');
         }
