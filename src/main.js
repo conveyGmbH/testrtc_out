@@ -21915,10 +21915,10 @@ Polymer({
           successes += this.tests[i].successCount;
         }
 
-        if (errors === 0 && warnings === 0 && successes > 0) {
+        if (errors === 0 && successes > 0) {
           this.state = 'success';
           this.opened = false;
-        } else if (errors === 0 && warnings > 0) {
+        } else if (successes > 0) {
           this.state = 'warning';
           this.opened = true;
         } else {
@@ -21943,7 +21943,25 @@ function runAllSequentially(tasks, doneCallback) {
       doneCallback();
       return;
     }
-    tasks[current].run(runNextAsync);
+    var task = tasks[current];
+    if (task.name === testSuiteName.THROUGHPUT) {
+      for (var i = 0; i < current; i++) {
+          if (tasks[i].name === testSuiteName.NETWORK) {
+              var relayTest = tasks[i].tests.filter(function(test) {
+                  return test.name === testCaseName.TCPENABLED;
+              })[0];
+              if (relayTest && !relayTest.successCount) {
+                  task.tests.forEach(function(test) {
+                      if (test.name === testCaseName.DATATHROUGHPUTRELAY ||
+                          test.name === testCaseName.VIDEOBANDWIDTHRELAY) {
+                          test.isDisabled = true;
+                      }
+                  });
+              }
+          }
+      }
+    }
+    task.run(runNextAsync);
   }
 };
 var interval = 0;
@@ -22127,7 +22145,7 @@ var PREFIX_INFO    = '[   INFO ]';
           // Pass in the "this" object for test reporting and control.
           this.testFunction(this);
         } else {
-          this.reportInfo('Test is disabled.');
+          this.reportError('Test is disabled.');
           this.done();
         }
       },
@@ -22144,8 +22162,8 @@ var PREFIX_INFO    = '[   INFO ]';
           this.state = 'success';
         } else if (this.warningCount > 0 && this.errorCount === 0) {
           this.state = 'warning';
-        } else if (this.isDisabled) {
-          this.state = 'disabled';
+        //} else if (this.isDisabled) {
+        //  this.state = 'disabled';
         } else {
           this.state = 'failure';
         }
@@ -25476,13 +25494,15 @@ function TestCaseNames() {
     CHECKRESOLUTION480: 'Check video capture, resolution 640x480',
     CHECKRESOLUTION720: 'Check video capture, resolution 1280x720',
     CHECKSUPPORTEDRESOLUTIONS: 'Check supported camera resolutions',
-    DATATHROUGHPUT: 'Check data throughput',
+    DATATHROUGHPUTRELAY: 'Check data throughput - Relay',
+    DATATHROUGHPUT: 'Check data throughput - Host',
     NETWORKLATENCY: 'Check network latency',
     NETWORKLATENCYRELAY: 'Check network latency - Relay',
     UDPENABLED: 'Check Udp enabled',
     TCPENABLED: 'Check Tcp Relay enabled',
     IPV6ENABLED: 'Check Ipv6 enabled',
-    VIDEOBANDWIDTH: 'Check video bandwidth',
+    VIDEOBANDWIDTHRELAY: 'Check video bandwidth - Relay',
+    VIDEOBANDWIDTH: 'Check video bandwidth - Host',
     RELAYCONNECTIVITY: 'Check relay connectivity',
     REFLEXIVECONNECTIVITY: 'Check reflexive connectivity',
     HOSTCONNECTIVITY: 'Check host connectivity'
@@ -26159,10 +26179,9 @@ NetworkTest.prototype = {
     } catch (error) {
       if (params !== null && params.optional[0].googIPv6) {
         this.test.reportWarning('Failed to create peer connection, IPv6 ' +
-            'might not be setup/supported on the network.');
-      } else if (params !== null && params.optional[0].udpRelay) {
-        this.test.reportWarning('Failed to create peer connection, udp relay ' +
           'might not be setup/supported on the network.');
+      } else if (params !== null && params.optional[0].udpRelay) {
+        this.test.reportWarning('Failed to create peer connection, udp relay: ' + error );
       } else {
         this.test.reportError('Failed to create peer connection: ' + error);
       }
@@ -26360,12 +26379,12 @@ RunConnectivityTest.prototype = {
 // Creates a loopback via relay candidates and tries to send as many packets
 // with 1024 chars as possible while keeping dataChannel bufferedAmmount above
 // zero.
-addTest(testSuiteName.THROUGHPUT, testCaseName.DATATHROUGHPUT, function(test) {
-  var dataChannelThroughputTest = new DataChannelThroughputTest(test);
+addTest(testSuiteName.THROUGHPUT, testCaseName.DATATHROUGHPUTRELAY, function(test) {
+  var dataChannelThroughputTest = new DataChannelThroughputTest(test, Call.isRelay);
   dataChannelThroughputTest.run();
 });
 
-function DataChannelThroughputTest(test) {
+function DataChannelThroughputTest(test, iceCandidateFilter) {
   this.test = test;
   this.testDurationSeconds = 5.0;
   this.startTime = null;
@@ -26386,6 +26405,7 @@ function DataChannelThroughputTest(test) {
   this.call = null;
   this.senderChannel = null;
   this.receiveChannel = null;
+  this.iceCandidateFilter = iceCandidateFilter || Call.isRelay;
 }
 
 DataChannelThroughputTest.prototype = {
@@ -26396,7 +26416,7 @@ DataChannelThroughputTest.prototype = {
 
   start: function(config) {
     this.call = new Call(config, this.test);
-    this.call.setIceCandidateFilter(Call.isRelay);
+    this.call.setIceCandidateFilter(this.iceCandidateFilter);
     this.senderChannel = this.call.pc1.createDataChannel(null);
     this.senderChannel.addEventListener('open', this.sendingStep.bind(this));
 
@@ -26466,12 +26486,12 @@ DataChannelThroughputTest.prototype = {
 // relay candidates for 40 seconds. Computes rtt and bandwidth estimation
 // average and maximum as well as time to ramp up (defined as reaching 75% of
 // the max bitrate. It reports infinite time to ramp up if never reaches it.
-addTest(testSuiteName.THROUGHPUT, testCaseName.VIDEOBANDWIDTH, function(test) {
-  var videoBandwidthTest = new VideoBandwidthTest(test);
+addTest(testSuiteName.THROUGHPUT, testCaseName.VIDEOBANDWIDTHRELAY, function(test) {
+  var videoBandwidthTest = new VideoBandwidthTest(test, Call.isRelay);
   videoBandwidthTest.run();
 });
 
-function VideoBandwidthTest(test) {
+function VideoBandwidthTest(test, iceCandidateFilter) {
   this.test = test;
   this.maxVideoBitrateKbps = 2000;
   this.durationMs = 40000;
@@ -26500,6 +26520,7 @@ function VideoBandwidthTest(test) {
       minHeight: 720
     }
   };
+  this.iceCandidateFilter = iceCandidateFilter || Call.isRelay;
 }
 
 VideoBandwidthTest.prototype = {
@@ -26510,7 +26531,7 @@ VideoBandwidthTest.prototype = {
 
   start: function(config) {
     this.call = new Call(config, this.test);
-    this.call.setIceCandidateFilter(Call.isRelay);
+    this.call.setIceCandidateFilter(this.iceCandidateFilter);
     // FEC makes it hard to study bandwidth estimation since there seems to be
     // a spike when it is enabled and disabled. Disable it for now. FEC issue
     // tracked on: https://code.google.com/p/webrtc/issues/detail?id=3050
