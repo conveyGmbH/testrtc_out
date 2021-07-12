@@ -6,14 +6,14 @@
     ],
     "turnServers": [
         {
-            "username": "1626177740:w_enh4wk1e6uxw",
-            "password": "mybQzjijwK9lEX94ykQ0LkM/q1g=",
+            "username": "1626201001:w_xhbmsgyqqfup",
+            "password": "Of68rqJoYkLPLB24BN5q3zqC3to=",
             "url": "turn:coturn.convey.de:443?transport=tcp",
             "ttl": 86400
         },
         {
-            "username": "1626177740:w_enh4wk1e6uxw",
-            "password": "mybQzjijwK9lEX94ykQ0LkM/q1g=",
+            "username": "1626201001:w_xhbmsgyqqfup",
+            "password": "Of68rqJoYkLPLB24BN5q3zqC3to=",
             "url": "turns:coturn.convey.de:443?transport=tcp",
             "ttl": 86400
         }
