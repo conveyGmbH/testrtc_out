@@ -2836,9 +2836,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       max-width: 40em;
       margin: 1em auto 1em auto;
     }
+    .paper-toolbar-0 .toolbar-tools.paper-toolbar > .title {
+      margin: 0;
+    }
 
     #reportButton > iron-icon {
-        margin: 4px;
+      margin: 4px;
     }
     #reportButton:hover {
         background-color: rgba(0, 0, 0, 0.1);
@@ -2871,7 +2874,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-toolbar class="titlebar">
         <span class="title">WebRTC Test</span>
         <paper-button id="reportButton" on-tap="openBugReport">Report<iron-icon icon="cloud-download"></iron-icon></paper-button>
-        <paper-button id="startButton" on-tap="run" raised="" disabled="">Start all</paper-button>
+        <paper-button id="startButton" on-tap="run" raised="" disabled="">Start</paper-button>
     </paper-toolbar>
 
     <div style="display:none">
